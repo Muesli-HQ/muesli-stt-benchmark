@@ -1,0 +1,12 @@
+{
+  "name": "muesli-cli",
+  "description": "Muesli's installed on-device transcription CLI",
+  "command": "/Applications/Muesli.app/Contents/MacOS/muesli-cli transcribe {audio} --model {model} --format json",
+  "result_format": "muesli-cli-json",
+  "runtime_examples": {
+    "parakeet-unified": "coreml",
+    "sensevoice": "coreml",
+    "qwen3-asr": "coreml",
+    "whisper-small": "coreml"
+  }
+}

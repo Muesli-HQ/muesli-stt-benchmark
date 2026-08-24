@@ -1,0 +1,11 @@
+.DS_Store
+.venv/
+__pycache__/
+*.py[cod]
+
+# Downloaded corpora, model caches, and generated measurements are local artifacts.
+data/
+models/
+results/*.jsonl
+results/*.json
+!results/.gitkeep
