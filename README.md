@@ -62,6 +62,34 @@ python3 -m venv .venv
 The bundled adapter parses Muesli CLI JSON. Other runtimes use the same output
 contract by adding an adapter rather than modifying the runner.
 
+## Muesli Core ML local suite
+
+For the supplied local English-reading manifest, use Muesli's lean Swift
+benchmark command. It has no UI, database, meetings, cleanup, or telemetry
+dependencies. A model is benchmarked only when its Core ML assets are already
+installed locally; it never downloads weights as part of a measurement.
+
+```bash
+CLI=/path/to/muesli-cli
+MANIFEST=$PWD/data/local/english-reading/refs.jsonl
+
+./scripts/run-coreml-suite.sh \
+  --muesli-cli "$CLI" \
+  --manifest "$MANIFEST" \
+  --output-dir results/local-coreml
+```
+
+The suite runs Parakeet Unified, Parakeet v3, Parakeet v2, Parakeet EOU,
+SenseVoice, Qwen3 ASR, and Nemotron 3.5. Each model gets a new process, one
+model-load-inclusive **cold** inference, then three warm repeats. The process
+exits and the suite idles for 60 seconds before starting the next model. This
+clears Muesli's/Core ML process state; it does not claim to reset machine-wide
+thermal state. Use `--cooldown-seconds 0` only for a quick functional run.
+
+Each model writes its own JSONL file. A missing local model causes the suite to
+stop rather than downloading it; narrow the run with `--models parakeet-v3` or
+install the asset through Muesli first.
+
 ## Duration and long-audio policy
 
 Every input records its `duration_seconds`; reports group results by explicit

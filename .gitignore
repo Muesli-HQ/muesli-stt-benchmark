@@ -8,4 +8,6 @@ data/
 models/
 results/*.jsonl
 results/*.json
+results/**/*.jsonl
+results/**/*.json
 !results/.gitkeep
