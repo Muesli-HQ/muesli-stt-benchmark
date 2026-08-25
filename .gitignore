@@ -1,6 +1,7 @@
 .DS_Store
 .venv/
 __pycache__/
+src/*.egg-info/
 *.py[cod]
 
 # Downloaded corpora, model caches, and generated measurements are local artifacts.
