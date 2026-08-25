@@ -70,7 +70,12 @@ dependencies. A model is benchmarked only when its Core ML assets are already
 installed locally; it never downloads weights as part of a measurement.
 
 ```bash
-CLI=/path/to/muesli-cli
+git clone https://github.com/Muesli-HQ/muesli.git ../muesli
+cd ../muesli
+swift build --package-path native/MuesliNative --product muesli-cli
+CLI="$(swift build --package-path native/MuesliNative --show-bin-path)/muesli-cli"
+
+cd ../muesli-stt-benchmark
 MANIFEST=$PWD/data/local/english-reading/refs.jsonl
 
 ./scripts/run-coreml-suite.sh \
