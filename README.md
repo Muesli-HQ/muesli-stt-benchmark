@@ -95,6 +95,16 @@ Each model writes its own JSONL file. A missing local model causes the suite to
 stop rather than downloading it; narrow the run with `--models parakeet-v3` or
 install the asset through Muesli first.
 
+Render the completed suite without dropping failed attempts:
+
+```bash
+./scripts/report-coreml-jsonl.sh results/local-coreml/*.jsonl
+```
+
+The cold timing is the first clip in each fresh model process; every later
+record is warm. The report's per-clip WER includes failures as empty output,
+while the successful/total column makes input-window limitations explicit.
+
 ## Duration and long-audio policy
 
 Every input records its `duration_seconds`; reports group results by explicit
