@@ -12,3 +12,7 @@ results/*.json
 results/**/*.jsonl
 results/**/*.json
 !results/.gitkeep
+
+# XcodeGen recreates this project from runners/xcode/project.yml. Keep derived
+# data in the external benchmark cache, never in the repository.
+runners/xcode/*.xcodeproj/

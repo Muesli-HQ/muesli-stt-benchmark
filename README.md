@@ -86,6 +86,35 @@ Core ML, LiteRT, GGUF, and MLX are benchmark dimensions, not interchangeable
 labels: record the actual backend and relevant placement, such as ANE encoder
 plus Metal decoder.
 
+## Experimental MLX: Qwen3-ASR-0.6B
+
+`Qwen/Qwen3-ASR-0.6B` is the first MLX experiment because it has a substantial
+autoregressive decoder: an 18-layer audio encoder feeds a 28-layer Qwen3 GQA
+decoder. The model's canonical checkpoint is BF16; the first end-to-end
+baseline will retain that precision and use neither quantization nor custom
+Metal kernels.
+
+The native runner must be built with Xcode, not `swift run`: MLX's Metal
+library is packaged by the Xcode product. One-time host setup is:
+
+```bash
+xcodebuild -downloadComponent MetalToolchain
+hf download Qwen/Qwen3-ASR-0.6B \
+  --local-dir /Users/you/Library/Caches/muesli-stt-benchmark/models/qwen3-asr-0.6b
+
+xcodegen generate --spec runners/xcode/project.yml --project-root runners/xcode
+xcodebuild -skipPackagePluginValidation \
+  -project runners/xcode/MLXQwen3ASRProbe.xcodeproj \
+  -scheme MLXQwen3ASRProbe -configuration Debug \
+  -derivedDataPath /Users/you/Library/Caches/muesli-spm/stt-benchmark/mlx-xcode build
+```
+
+Run the resulting `mlx-qwen3-asr-probe` binary to validate that MLX can map the
+canonical safetensors and execute the real BF16 decoder LM-head/argmax on Metal.
+This probe is intentionally **not** an ASR benchmark: it has no audio frontend,
+no transcript, and therefore no WER or RTF result. The exact implementation
+gates for the end-to-end runner are in [the MLX experiment note](docs/mlx-qwen3-asr.md).
+
 ## Repository layout
 
 ```text
@@ -93,6 +122,7 @@ configs/adapters/  command adapters for products and runtimes
 datasets/          public workload policy and dataset documentation
 src/               fetch, machine-profile, execution, and reporting tooling
 results/           ignored local results (publish curated result files separately)
+runners/xcode/     XcodeGen project for MLX executables that need a metallib
 ```
 
 ## Provenance

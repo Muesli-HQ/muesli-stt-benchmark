@@ -7,9 +7,11 @@ let package = Package(
     products: [
         .executable(name: "whisper-coreml-runner", targets: ["WhisperCoreMLRunner"]),
         .executable(name: "gemma-litert-runner", targets: ["GemmaLiteRTRunner"]),
+        .executable(name: "mlx-qwen3-asr-probe", targets: ["MLXQwen3ASRProbe"]),
     ],
     dependencies: [
         .package(url: "https://github.com/argmaxinc/WhisperKit.git", branch: "main"),
+        .package(url: "https://github.com/ml-explore/mlx-swift", .upToNextMinor(from: "0.31.4")),
     ],
     targets: [
         .binaryTarget(
@@ -26,6 +28,15 @@ let package = Package(
             name: "GemmaLiteRTRunner",
             dependencies: ["CLiteRTLM"],
             path: "Sources/GemmaLiteRTRunner"
+        ),
+        .executableTarget(
+            name: "MLXQwen3ASRProbe",
+            dependencies: [
+                .product(name: "MLX", package: "mlx-swift"),
+                .product(name: "MLXFast", package: "mlx-swift"),
+                .product(name: "MLXNN", package: "mlx-swift"),
+            ],
+            path: "Sources/MLXQwen3ASRProbe"
         ),
     ]
 )
