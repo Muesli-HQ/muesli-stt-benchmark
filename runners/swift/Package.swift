@@ -8,10 +8,17 @@ let package = Package(
         .executable(name: "whisper-coreml-runner", targets: ["WhisperCoreMLRunner"]),
         .executable(name: "gemma-litert-runner", targets: ["GemmaLiteRTRunner"]),
         .executable(name: "mlx-qwen3-asr-probe", targets: ["MLXQwen3ASRProbe"]),
+        .executable(name: "mlx-qwen3-asr-runner", targets: ["MLXQwen3ASRRunner"]),
     ],
     dependencies: [
         .package(url: "https://github.com/argmaxinc/WhisperKit.git", branch: "main"),
         .package(url: "https://github.com/ml-explore/mlx-swift", .upToNextMinor(from: "0.31.4")),
+        // Apache-2.0 ASR architecture used only for the MLX-native exploratory
+        // runner. The benchmark labels its converted 4-bit checkpoint clearly.
+        .package(
+            url: "https://github.com/vfasky/qwen3-asr-swift.git",
+            revision: "4824c95e1e4624200405d639fb4ebe10f93f1075"
+        ),
     ],
     targets: [
         .binaryTarget(
@@ -37,6 +44,14 @@ let package = Package(
                 .product(name: "MLXNN", package: "mlx-swift"),
             ],
             path: "Sources/MLXQwen3ASRProbe"
+        ),
+        .executableTarget(
+            name: "MLXQwen3ASRRunner",
+            dependencies: [
+                .product(name: "Qwen3ASR", package: "qwen3-asr-swift"),
+                .product(name: "Qwen3Common", package: "qwen3-asr-swift"),
+            ],
+            path: "Sources/MLXQwen3ASRRunner"
         ),
     ]
 )

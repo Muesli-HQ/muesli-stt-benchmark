@@ -237,7 +237,9 @@ def run_runner_session(args: argparse.Namespace) -> None:
     started_at = datetime.now(UTC).isoformat()
     rows: list[dict[str, Any]] = []
     process = subprocess.Popen(
-        command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        # Runner diagnostics must never share the protocol stream. Inheriting
+        # stderr also avoids a full, unread pipe deadlocking long MLX sessions.
+        command, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=None,
         text=True, bufsize=1,
     )
     if not process.stdin or not process.stdout:
@@ -249,8 +251,7 @@ def run_runner_session(args: argparse.Namespace) -> None:
         process.stdin.flush()
         response = process.stdout.readline()
         if not response:
-            stderr = process.stderr.read() if process.stderr else ""
-            raise RuntimeError(f"runner exited unexpectedly: {stderr[-500:]}")
+            raise RuntimeError("runner exited unexpectedly; inspect its stderr diagnostics")
         return json.loads(response)
 
     try:
@@ -277,6 +278,7 @@ def run_runner_session(args: argparse.Namespace) -> None:
                     "rtf": round(wall_seconds / entry["duration_seconds"], 5),
                     "status": status, "hypothesis": hypothesis,
                     "error": response.get("error") if status == "failed" else None,
+                    "runtime_metadata": response.get("runtime_metadata") if status == "ok" else None,
                     "wer": round(jiwer.wer(normalize(entry["reference"]), normalize(hypothesis)), 6),
                 }
                 rows.append(row)

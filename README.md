@@ -115,6 +115,36 @@ This probe is intentionally **not** an ASR benchmark: it has no audio frontend,
 no transcript, and therefore no WER or RTF result. The exact implementation
 gates for the end-to-end runner are in [the MLX experiment note](docs/mlx-qwen3-asr.md).
 
+### MLX-native exploratory ASR runner
+
+The harness also has an end-to-end MLX runner for
+`mlx-community/Qwen3-ASR-0.6B-4bit`. It uses a converted 4-bit checkpoint and
+is therefore an exploratory MLX result, not an equal-precision comparison with
+the canonical BF16 Qwen checkpoint or Muesli's Core ML artifact. It records
+model mapping/warm-up, audio loading, inference, and total runner time in every
+pass result.
+
+```bash
+hf download mlx-community/Qwen3-ASR-0.6B-4bit \
+  --local-dir "$HOME/Library/Caches/qwen3-speech/mlx-community_Qwen3-ASR-0.6B-4bit"
+
+xcodegen generate --spec runners/xcode/project.yml --project-root runners/xcode
+xcodebuild -skipPackagePluginValidation \
+  -project runners/xcode/MLXQwen3ASRProbe.xcodeproj \
+  -scheme MLXQwen3ASRRunner -configuration Release \
+  -derivedDataPath "$HOME/Library/Caches/muesli-spm/stt-benchmark/mlx-qwen3-asr-runner" build
+
+./.venv/bin/stt-benchmark session \
+  --manifest data/local/english-reading/refs.jsonl \
+  --runner "$HOME/Library/Caches/muesli-spm/stt-benchmark/mlx-qwen3-asr-runner/Build/Products/Release/mlx-qwen3-asr-runner.app/Contents/MacOS/mlx-qwen3-asr-runner" \
+  --model mlx-community/Qwen3-ASR-0.6B-4bit --runtime mlx --warm-runs 3 \
+  --output results/local-mlx/constitution--qwen3-asr-0.6b-4bit--mlx.jsonl
+```
+
+The first request in a session is process-cold (model mapping plus MLX GPU
+warm-up); the following three requests are warm. A first-ever device cold start
+requires a separately documented process after GPU caches have been cleared.
+
 ## Repository layout
 
 ```text

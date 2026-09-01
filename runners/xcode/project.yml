@@ -10,8 +10,35 @@ packages:
   MLX:
     url: https://github.com/ml-explore/mlx-swift
     from: "0.31.4"
+  Qwen3ASR:
+    url: https://github.com/vfasky/qwen3-asr-swift.git
+    revision: 4824c95e1e4624200405d639fb4ebe10f93f1075
 
 targets:
+  MLXQwen3ASRRunner:
+    type: application
+    platform: macOS
+    deploymentTarget: "14.0"
+    sources:
+      - path: ../swift/Sources/MLXQwen3ASRRunner
+    dependencies:
+      - package: Qwen3ASR
+        product: Qwen3ASR
+      - package: Qwen3ASR
+        product: Qwen3Common
+    settings:
+      base:
+        PRODUCT_NAME: mlx-qwen3-asr-runner
+        PRODUCT_BUNDLE_IDENTIFIER: com.muesli.benchmark.mlx-qwen3-asr-runner
+        GENERATE_INFOPLIST_FILE: YES
+        MARKETING_VERSION: "1"
+        CURRENT_PROJECT_VERSION: "1"
+        SWIFT_VERSION: "6.0"
+        OTHER_SWIFT_FLAGS: -parse-as-library
+        CODE_SIGNING_ALLOWED: NO
+        ENABLE_HARDENED_RUNTIME: NO
+        MACOSX_DEPLOYMENT_TARGET: "14.0"
+
   MLXQwen3ASRProbe:
     type: application
     platform: macOS
