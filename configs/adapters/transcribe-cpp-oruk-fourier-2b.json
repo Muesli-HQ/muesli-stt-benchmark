@@ -1,0 +1,10 @@
+{
+  "name": "transcribe-cpp-oruk-fourier-2b",
+  "description": "transcribe.cpp CLI running Oruk Fourier 2B Q8_0 GGUF (English-only, CC BY-NC 4.0) on Metal; pass the local Fourier-2B-Q8_0.gguf path as --model (or set TRANSCRIBE_CLI).",
+  "command": "python3 runners/transcribe_cpp_adapter.py --model {model} --audio {audio} --language en --backend metal",
+  "result_format": "plain-text",
+  "download_command": "hf download oruk/oruk-fourier-2b Fourier-2B-Q8_0.gguf config.json",
+  "runtime_examples": {
+    "oruk-fourier-2b-q8_0": "gguf"
+  }
+}
