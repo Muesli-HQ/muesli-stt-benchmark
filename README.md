@@ -145,6 +145,26 @@ The first request in a session is process-cold (model mapping plus MLX GPU
 warm-up); the following three requests are warm. A first-ever device cold start
 requires a separately documented process after GPU caches have been cleared.
 
+### Reference MLX & GGUF baselines: Oruk Fourier 2B (Apple M5 Max)
+
+`runners/oruk_fourier_mlx_runner.py` implements the persistent JSONL `runners/PROTOCOL.md` interface for [`oruk/oruk-fourier-2b`](https://huggingface.co/oruk/oruk-fourier-2b) (`mlx/8bit`, English-only Qwen3-ASR 1.7B post-training, **CC BY-NC 4.0**), and `configs/adapters/transcribe-cpp-oruk-fourier-2b.json` + `runners/transcribe_cpp_adapter.py` run the single-file `Fourier-2B-Q8_0.gguf` via `transcribe.cpp` Metal.
+
+Pre-download once (fetching repository-root `config.json` for canonical HF Hub attribution):
+
+```bash
+hf download oruk/oruk-fourier-2b --include "config.json" --include "mlx/8bit/*"
+hf download oruk/oruk-fourier-2b Fourier-2B-Q8_0.gguf config.json
+```
+
+Measured on **Apple M5 Max (128 GB, macOS 26.4.1, Python 3.12.13, greedy decoding)** over the 40-clip `stt-benchmark fetch --count 40` public workloads (`librispeech-clean` `manifest_sha256=15705cd9…`, `276.5 s`; `earnings22` `manifest_sha256=b30797d7…`, `253.0 s`):
+
+| Workload | Runtime | Mode | Clips / Attempts | WER (All) | Wall Time |
+|---|---|---|---:|---:|---:|
+| `librispeech-clean` | MLX 8-bit (`mlx-audio`) | persistent session (`--warm-runs 1`) | 40 / 80 | **2.32%** | 20.28 s |
+| `librispeech-clean` | GGUF Q8_0 (`transcribe.cpp` Metal) | per-clip CLI adapter | 40 / 40 | **2.32%** | 18.42 s |
+| `earnings22` | MLX 8-bit (`mlx-audio`) | persistent session (`--warm-runs 1`) | 40 / 80 | 12.88% | 21.51 s |
+| `earnings22` | GGUF Q8_0 (`transcribe.cpp` Metal) | per-clip CLI adapter | 40 / 40 | **12.59%** | 18.46 s |
+
 ## Repository layout
 
 ```text
